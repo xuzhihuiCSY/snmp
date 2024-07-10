@@ -62,8 +62,18 @@ class SNMPManager {
     set(target, varbind) {
         const session = this.createSession(target);
         session.set([varbind], (error, varbinds) => {
+            if (error) {
+                console.error("SNMP SET request failed:", error.toString());
+            } else {
+                varbinds.forEach(varbind => {
+                    if (snmp.isVarbindError(varbind)) {
+                        console.error("Varbind Error:", snmp.varbindError(varbind));
+                    } else {
+                        console.log("Successfully set OID " + varbind.oid + " to value " + varbind.value);
+                    }
+                });
+            }
             session.close();
-            callback(error, varbinds);
         });
     }
 }
