@@ -13,9 +13,19 @@ class SNMPManager {
     get(target, oid, callback) {
         const session = this.createSession(target);
         session.get([oid], (error, varbinds) => {
-            session.close();
-            callback(error, varbinds);
+            if (error) {
+                console.error("SNMP GET request failed:", error.toString());
+            } else {
+                varbinds.forEach(varbind => {
+                    if (snmp.isVarbindError(varbind)) {
+                        console.error("Varbind Error:", snmp.varbindError(varbind));
+                    } else {
+                        console.log("OID:", varbind.oid, "Value:", varbind.value.toString());
+                    }
+                });
+            }
         });
+        session.close();
     }
 
     getNext(target, oid, callback) {
