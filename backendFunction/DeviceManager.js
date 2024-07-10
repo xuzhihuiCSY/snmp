@@ -5,10 +5,10 @@ class DeviceManager {
         this.snmpManager = new SNMPManager(community, version);
     }
 
-    getDeviceInfo(target, oid, callback) {
+    getDeviceInfo(target, oid) {
         this.snmpManager.get(target, oid, (error, varbinds) => {
             if (error) {
-                return callback(error);
+                console.error("Get device information failed:", error.toString());
             }
             const info = {
                 description: varbinds[0].value.toString()
@@ -17,10 +17,10 @@ class DeviceManager {
         });
     }
 
-    getNextDeviceInfo(target, oid, callback) {
+    getNextDeviceInfo(target, oid) {
         this.snmpManager.getNext(target, oid, (error, varbinds) => {
             if (error) {
-                return callback(error);
+                console.error("Get next device information failed:", error.toString());
             }
             const info = {
                 description: varbinds[0].value.toString()
@@ -29,7 +29,7 @@ class DeviceManager {
         });
     }
 
-    getBulkDeviceInfo(target, oids, nonRepeaters, maxRepetitions, callback) {
+    getBulkDeviceInfo(target, oids, nonRepeaters, maxRepetitions) {
         this.snmpManager.getBulk(target, oids, nonRepeaters, maxRepetitions, (error, varbinds) => {
             if (error) {
                 return callback(error);
@@ -39,7 +39,7 @@ class DeviceManager {
         });
     }
 
-    setDeviceInfo(target, oid, type, value, callback) {
+    setDeviceInfo(target, oid, type, value) {
         const varbind = {
             oid: oid,
             type: type,
@@ -47,7 +47,7 @@ class DeviceManager {
         };
         this.snmpManager.set(target, varbind, (error, varbinds) => {
             if (error) {
-                return callback(error);
+                console.error("Set device information failed:", error.toString());
             }
             callback(null, varbinds);
         });
