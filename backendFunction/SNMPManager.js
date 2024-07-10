@@ -31,8 +31,23 @@ class SNMPManager {
     getNext(target, oid, callback) {
         const session = this.createSession(target);
         session.getNext([oid], (error, varbinds) => {
-            session.close();
-            callback(error, varbinds);
+            if (error) {
+                console.error("Error:", error.toString());
+            } else {
+                varbinds.forEach(varbind => {
+                    if (snmp.isVarbindError(varbind)) {
+                        console.error("Varbind Error:", snmp.varbindError(varbind));
+                    } else {
+                        oid = varbind.oid;
+                        console.log("OID:", varbind.oid, "Value:", varbind.value.toString());
+                        if (oid.startsWith("1.3.6.1.2.1.2.2.1")) {
+                            getNextOid(); // Continue walking the ifTable
+                        } else {
+                            session.close();
+                        }
+                    }
+                });
+            }
         });
     }
 
