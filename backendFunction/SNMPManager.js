@@ -54,8 +54,18 @@ class SNMPManager {
     getBulk(target, oids, nonRepeaters, maxRepetitions) {
         const session = this.createSession(target);
         session.getBulk(oids, nonRepeaters, maxRepetitions, (error, varbinds) => {
+            if (error) {
+                console.error("SNMP GetBulk request failed:", error.toString());
+            } else {
+                varbinds.forEach(varbind => {
+                    if (snmp.isVarbindError(varbind)) {
+                        console.error("Varbind Error:", snmp.varbindError(varbind));
+                    } else {
+                        console.log("OID:", varbind.oid, "Value:", varbind.value.toString());
+                    }
+                });
+            }
             session.close();
-            callback(error, varbinds);
         });
     }
 
