@@ -10,7 +10,7 @@ class SNMPManager {
         return snmp.createSession(target, this.community, { version: this.version });
     }
 
-    get(target, oid, callback) {
+    get(target, oid) {
         const session = this.createSession(target);
         session.get([oid], (error, varbinds) => {
             if (error) {
@@ -28,7 +28,7 @@ class SNMPManager {
         session.close();
     }
 
-    getNext(target, oid, callback) {
+    getNext(target, oid) {
         const session = this.createSession(target);
         session.getNext([oid], (error, varbinds) => {
             if (error) {
@@ -51,7 +51,7 @@ class SNMPManager {
         });
     }
 
-    getBulk(target, oids, nonRepeaters, maxRepetitions, callback) {
+    getBulk(target, oids, nonRepeaters, maxRepetitions) {
         const session = this.createSession(target);
         session.getBulk(oids, nonRepeaters, maxRepetitions, (error, varbinds) => {
             session.close();
@@ -59,7 +59,7 @@ class SNMPManager {
         });
     }
 
-    set(target, varbind, callback) {
+    set(target, varbind) {
         const session = this.createSession(target);
         session.set([varbind], (error, varbinds) => {
             session.close();
