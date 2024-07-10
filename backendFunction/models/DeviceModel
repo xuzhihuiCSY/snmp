@@ -1,0 +1,37 @@
+const mongoose = require('mongoose');
+
+
+const deviceTemplate = new mongoose.Schema({
+    ipAddress: {
+      type: String,
+      required: true,
+      validate: {
+        validator: function(v) {
+          return /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(v);
+        },
+        message: props => `${props.value} is not a valid IP address!`
+      }
+    },
+    snmpVersion: String,
+    OID: {
+      "_id": "ObjectId",
+      "name": "String",
+      "oid": "String",
+      "description": "String",
+      "type": "String",
+      "access": "String",
+      "status": "String"
+    },
+    Geolocation: [
+      {
+        country: String,
+        state: String,
+        county: String,
+        city: String
+      }
+    ],
+    Hostname: String,
+    interfaceAmount: Number
+  });
+
+  module.exports = mongoose.model('device_infos', deviceTemplate)
