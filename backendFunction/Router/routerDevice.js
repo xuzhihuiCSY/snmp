@@ -91,7 +91,7 @@ router.get('/search/oid', async (res, req) => {
       }
       session.close();
     });
-  }catch(eerror){
+  } catch (eerror) {
     res.status(500).json({
       error: 'An error occurred while searching', details: error.toString()
     })
@@ -112,6 +112,13 @@ router.post('/devide/add', async (res, req) => {
         hostname: req.body.hostname,
         interfaceAmount: req.body.interfaceAmount
       })
+      deviceInfo.save()
+        .then(data => {
+          res.status(200).json(data)
+        })
+        .catch(error => {
+          res.json(error)
+        })
     }
   })
 });

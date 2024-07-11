@@ -5,7 +5,6 @@ const bodyParser = require('body-parser');
 const snmp = require('net-snmp');
 const routerDevice = require('./Router/routerDevice');
 
-const PORT = process.env.PORT || 5000;
 
 const uri = "mongodb+srv://Sean_cluster:Xtx199284=@e-commerce.xyeoe40.mongodb.net/?retryWrites=true&w=majority";
 
@@ -43,6 +42,6 @@ const createSession = (target, community, version = snmp.Version2c) => {
 };
 
 
-app.listen(PORT, () => {
+app.listen(5000, () => {
   console.log(`Server running on port ${PORT}`);
 });

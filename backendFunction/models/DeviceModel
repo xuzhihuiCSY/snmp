@@ -22,14 +22,7 @@ const deviceTemplate = new mongoose.Schema({
       "access": "String",
       "status": "String"
     },
-    Geolocation: [
-      {
-        country: String,
-        state: String,
-        county: String,
-        city: String
-      }
-    ],
+    Geolocation: String,
     Hostname: String,
     interfaceAmount: Number
   });
