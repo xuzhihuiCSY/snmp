@@ -11,7 +11,7 @@ const uri = "mongodb+srv://Sean_cluster:Xtx199284=@e-commerce.xyeoe40.mongodb.ne
 async function connect(){
     try{
         // mongoose.set("strictQuery", false);
-        await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+        await mongoose.connect(uri)
         .then(()=>{
           console.log("Connected to MongoDB");
         })
@@ -37,11 +37,11 @@ app.use((req, res, next)=>{
 })
 
 //SNMP manager
-const createSession = (target, community, version = snmp.Version2c) => {
-  return snmp.createSession(target, community, { version: version });
-};
+// const createSession = (target, community, version = snmp.Version2c) => {
+//   return snmp.createSession(target, community, { version: version });
+// };
 
 
 app.listen(5000, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log('Server running on port 5000');
 });

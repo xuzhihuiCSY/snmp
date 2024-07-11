@@ -91,7 +91,7 @@ router.get('/search/oid', async (res, req) => {
       }
       session.close();
     });
-  } catch (eerror) {
+  } catch (error) {
     res.status(500).json({
       error: 'An error occurred while searching', details: error.toString()
     })
@@ -99,7 +99,7 @@ router.get('/search/oid', async (res, req) => {
 })
 
 //add the new device (connect the device does not exist in DB)
-router.post('/devide/add', async (res, req) => {
+router.post('/device/add', async (res, req) => {
   add(res, req, (err) => {
     if (err) {
       console.log(err)
@@ -113,12 +113,13 @@ router.post('/devide/add', async (res, req) => {
         interfaceAmount: req.body.interfaceAmount
       })
       deviceInfo.save()
-        .then(data => {
-          res.status(200).json(data)
-        })
-        .catch(error => {
-          res.json(error)
-        })
+      .then(data => {
+        res.status(200).json(data)
+      })
+      .catch(error => {
+        res.json(error)
+        console.log(error)
+      })
     }
   })
 });
