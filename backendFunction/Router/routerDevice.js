@@ -1,8 +1,10 @@
 const express = require('express')
+const mongoose = require('mongoose')
 const router = express.Router()
 const snmp = require('net-snmp')
 
-const deviceTemplateCopy = require('../models/DeviceModel')
+const deviceTemplateCopy = require('../models/DeviceModel');
+const { hostname } = require('os');
 
 //connect the device (re-connection)
 router.post('/device/connect', (req, res) => {
@@ -104,6 +106,11 @@ router.post('/devide/add', async (res, req) => {
     } else {
       const deviceInfo = new deviceTemplateCopy({
         ipAddress: req.body.ipAddress,
+        snmpVersion: req.body.snmpVersion,
+        oid: req.body.oid,
+        Geolocation: req.body.Geolocation,
+        hostname: req.body.hostname,
+        interfaceAmount: req.body.interfaceAmount
       })
     }
   })
