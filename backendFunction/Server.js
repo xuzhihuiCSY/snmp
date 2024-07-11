@@ -4,6 +4,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const snmp = require('net-snmp');
 const routerDevice = require('./Router/routerDevice');
+const routerTest = require('./Router/routerTest');
 
 
 const uri = "mongodb+srv://Sean_cluster:Xtx199284=@e-commerce.xyeoe40.mongodb.net/?retryWrites=true&w=majority";
@@ -29,6 +30,7 @@ connect();
 app.use(bodyParser.json());
 app.use(express.json());
 app.use('/snmp', routerDevice);
+app.use('/test', routerTest);
 app.use((req, res, next)=>{
   res.header('Access-Control-Allow-Origin', '*')
   res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET')

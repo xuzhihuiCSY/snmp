@@ -2,10 +2,10 @@ const express = require('express')
 const router = express.Router()
 const snmp = require('net-snmp')
 
-const deviceTemplateCopy = require('../models/DeviceModel');
+const deviceTemplateCopy = require('../models/DeviceModel.js');
 
 //search the device according to the IP address
-router.post('/search', async (res, req) => {
+router.get('/search', async (res, req) => {
   let ipAddress = req.body.ipAddress
   try {
     let deviceData = await deviceTemplateCopy.findOne({ ipAddress: ipAddress }).exec()
@@ -14,7 +14,7 @@ router.post('/search', async (res, req) => {
         message: 'No records found'
       });
     }
-    res.status(200).send({ deviceData });
+    res.status(200).json({ deviceData });
   } catch (error) {
     res.status(500).json({
       error: 'An error occurred while searching', details: error.toString()
@@ -117,13 +117,14 @@ router.post('/add', (res, req) => {
     interfaceAmount: req.body.interfaceAmount
   })
   deviceInfo.save()
-    .then(data => {
-      res.status(200).json(data)
-    })
-    .catch(error => {
-      res.json(error)
-      console.log(error)
-    })
+  .then(data => {
+    res.status(200).json(data)
+    console.log('successfully add device')
+  })
+  .catch(error => {
+    res.json(error)
+    console.log(error)
+  })
 });
 
 module.exports = router
