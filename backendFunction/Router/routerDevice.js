@@ -1,14 +1,32 @@
 const express = require('express')
-const mongoose = require('mongoose')
 const router = express.Router()
 const snmp = require('net-snmp')
 
 const deviceTemplateCopy = require('../models/DeviceModel');
-const { hostname } = require('os');
+
+//search the device according to the IP address
+router.post('/search', async (res, req) => {
+  let ipAddress = req.body.ipAddress
+  try {
+    let deviceData = await deviceTemplateCopy.findOne({ ipAddress: ipAddress }).exec()
+    if (deviceData.length === 0) {
+      return res.status(404).json({
+        message: 'No records found'
+      });
+    }
+    res.status(200).send({ deviceData });
+  } catch (error) {
+    res.status(500).json({
+      error: 'An error occurred while searching', details: error.toString()
+    })
+  }
+  res.send(deviceData)
+});
 
 //connect the device (re-connection)
-router.post('/device/connect', (req, res) => {
-  const { ipAddress, snmpVersion } = req.body;
+router.get('/connect', (req, res) => {
+  let ipAddress = req.body.ipAddress;
+  let snmpVersion = req.body.snmpVersion;
 
   deviceTemplateCopy.findOne({ ipAddress: ipAddress }, (err, device) => {
     if (err) return res.status(500).json({ message: 'Database query error' });
@@ -21,21 +39,29 @@ router.post('/device/connect', (req, res) => {
         if (error) {
           return res.status(500).json({ message: `SNMP request failed: ${error.message}` });
         } else {
-          const deviceInfo = {
-            description: varbinds[0].value.toString()
-          };
+          // const deviceInfo = {
+          //   description: varbinds[0].value.toString()
+          // };
 
-          const newDevice = new deviceTemplateCopy({
-            ipAddress: ipAddress,
-            snmpVersion: snmpVersion,
-            info: deviceInfo
+          // const newDevice = new deviceTemplateCopy({
+          //   ipAddress: ipAddress,
+          //   snmpVersion: snmpVersion,
+          //   info: deviceInfo
+          // });
+
+          varbinds.forEach(varbind => {
+            if (snmp.isVarbindError(varbind)) {
+              console.error("Varbind Error:", snmp.varbindError(varbind));
+            } else {
+              console.log("OID:", varbind.oid, "Value:", varbind.value.toString());
+            }
           });
 
-          newDevice.save((err) => {
-            if (err) return res.status(500).json({ message: 'Error saving device to database' });
+          // newDevice.save((err) => {
+          //   if (err) return res.status(500).json({ message: 'Error saving device to database' });
 
-            res.json(deviceInfo);
-          });
+          //   res.json(deviceInfo);
+          // });
         }
         session.close();
       });
@@ -43,30 +69,6 @@ router.post('/device/connect', (req, res) => {
   });
 });
 
-
-//search the device according to the IP address
-router.post('/search', async (res, req) => {
-  const { ipAddress } = req.body.ipAddress
-  if (!ipAddress) {
-    res.status(401).json({
-      message: "please provide valide IP address"
-    })
-  }
-  try {
-    const deviceData = await deviceTemplateCopy.findOne({ ipAddress: ipAddress })
-    if (results.length === 0) {
-      return res.status(404).json({
-        message: 'No records found'
-      });
-    }
-    res.status(200).json({ deviceData });
-  } catch (error) {
-    res.status(500).json({
-      error: 'An error occurred while searching', details: error.toString()
-    })
-  }
-  res.send(deviceData)
-});
 
 //get the device info by OID
 router.get('/search/oid', async (res, req) => {
@@ -85,7 +87,13 @@ router.get('/search/oid', async (res, req) => {
           if (snmp.isVarbindError(varbind)) {
             console.error('Varbind Error:', snmp.varbindError(varbind));
           } else {
-            console.log('OID:', varbind.oid, 'Value:', varbind.value.toString());
+            varbinds.forEach(varbind => {
+              if (snmp.isVarbindError(varbind)) {
+                console.error("Varbind Error:", snmp.varbindError(varbind));
+              } else {
+                console.log("OID:", varbind.oid, "Value:", varbind.value.toString());
+              }
+            });
           }
         });
       }
@@ -99,29 +107,23 @@ router.get('/search/oid', async (res, req) => {
 })
 
 //add the new device (connect the device does not exist in DB)
-router.post('/device/add', async (res, req) => {
-  add(res, req, (err) => {
-    if (err) {
-      console.log(err)
-    } else {
-      const deviceInfo = new deviceTemplateCopy({
-        ipAddress: req.body.ipAddress,
-        snmpVersion: req.body.snmpVersion,
-        oid: req.body.oid,
-        Geolocation: req.body.Geolocation,
-        hostname: req.body.hostname,
-        interfaceAmount: req.body.interfaceAmount
-      })
-      deviceInfo.save()
-      .then(data => {
-        res.status(200).json(data)
-      })
-      .catch(error => {
-        res.json(error)
-        console.log(error)
-      })
-    }
+router.post('/add', (res, req) => {
+  const deviceInfo = new deviceTemplateCopy({
+    ipAddress: req.body.ipAddress,
+    snmpVersion: req.body.snmpVersion,
+    oid: req.body.oid,
+    Geolocation: req.body.Geolocation,
+    hostname: req.body.hostname,
+    interfaceAmount: req.body.interfaceAmount
   })
+  deviceInfo.save()
+    .then(data => {
+      res.status(200).json(data)
+    })
+    .catch(error => {
+      res.json(error)
+      console.log(error)
+    })
 });
 
 module.exports = router

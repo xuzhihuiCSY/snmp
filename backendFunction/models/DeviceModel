@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
 
 const deviceTemplate = new mongoose.Schema({
@@ -12,7 +12,10 @@ const deviceTemplate = new mongoose.Schema({
         message: props => `${props.value} is not a valid IP address!`
       }
     },
-    snmpVersion: String,
+    snmpVersion: {
+      type: String,
+      required: true
+    },
     OID: {
       "_id": "ObjectId",
       "name": "String",
@@ -22,9 +25,18 @@ const deviceTemplate = new mongoose.Schema({
       "access": "String",
       "status": "String"
     },
-    Geolocation: String,
-    Hostname: String,
-    interfaceAmount: Number
+    Geolocation: {
+      type: String,
+      required: true
+    },
+    Hostname: {
+      type: String,
+      required: true
+    },
+    interfaceAmount: {
+      type: Number,
+      required: true
+    }
   });
 
   module.exports = mongoose.model('device_infos', deviceTemplate)
