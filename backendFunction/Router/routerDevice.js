@@ -60,37 +60,41 @@ function checkDevice(targetIP) {
 //get connection information by the IP address proivde from the frontend
 router.get('/search/ip', async (req, res) => {
   let ipAddress = req.body.ipAddress
-  if (!targetDevice) {
+
+  if (!ipAddress) {
     return res.status(400).json({ error: 'Enter a valid IP address' });
+  } else {
+    //create an SNMP session
+    const session = snmp.createSession(ipAddress, 'public');
+
+    checkDevice(ipAddress, (error, results) => {
+      if (error) {
+        return res.status(500).json({ error: error.toString() });
+      }
+      res.json(results);
+    });
   }
-  //create an SNMP session
-  const session = snmp.createSession(ipAddress, 'public');
+
   try {
     let deviceData = await deviceTemplateCopy.findOne({ ipAddress: ipAddress }).exec()
     if (deviceData === null) {
       return res.status(404).json({
         message: 'No records found'
       });
+    } else {
+      res.status(200).json({ deviceData });
     }
-    res.status(200).json({ deviceData });
   } catch (error) {
     res.status(500).json({
       error: 'An error occurred while searching', details: error.toString()
     })
   }
-  res.send(deviceData)
-
-  checkDevice(ipAddress, (error, results) => {
-    if (error) {
-      return res.status(500).json({ error: error.toString() });
-    }
-    res.json(results);
-  });
+  res.send(deviceData);
 });
 
 //function to check the manufacturer based on OID prefix
 function getManufacturer(oid) {
-  const oidPrefix = oid.split('.').slice(0, 4).join('.');
+  const oidPrefix = oid;
   const manufacturers = {
     '1.3.6.1.4.1.9': 'Cisco',
     '1.3.6.1.4.1.11': 'HP',
@@ -126,10 +130,11 @@ function performSNMPWalk(target, oid) {
 }
 
 //get decvice information by IP and OID provided from the frontend
-router.get('/searchdevice', async (req, res) => {
+router.get('/search/device', async (req, res) => {
   let ipAddress = req.body.ipAddress;
-  let oid = req.body.oid;
-  let result = performSNMPWalk(ipAddress, oid);
+  let mib = req.body.mib;
+  let result = performSNMPWalk(ipAddress, mib);
+  res.send(result);
 })
 
 
@@ -199,43 +204,6 @@ router.get('/connect', (req, res) => {
     }
   });
 });
-
-
-//get the device info by OID
-router.get('/search/oid', async (res, req) => {
-  const { oid } = req.body.oid
-  if (!oid) {
-    res.status(401).json({
-      message: "please provide valide OID number"
-    })
-  }
-  try {
-    session.get([oid], (error, varbinds) => {
-      if (error) {
-        console.error('SNMP GET request failed:', error.toString());
-      } else {
-        varbinds.forEach(varbind => {
-          if (snmp.isVarbindError(varbind)) {
-            console.error('Varbind Error:', snmp.varbindError(varbind));
-          } else {
-            varbinds.forEach(varbind => {
-              if (snmp.isVarbindError(varbind)) {
-                console.error("Varbind Error:", snmp.varbindError(varbind));
-              } else {
-                console.log("OID:", varbind.oid, "Value:", varbind.value.toString());
-              }
-            });
-          }
-        });
-      }
-      session.close();
-    });
-  } catch (error) {
-    res.status(500).json({
-      error: 'An error occurred while searching', details: error.toString()
-    })
-  }
-})
 
 
 module.exports = router

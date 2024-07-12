@@ -1,4 +1,5 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const { type } = require('os');
 
 
 const deviceTemplate = new mongoose.Schema({
@@ -10,15 +11,9 @@ const deviceTemplate = new mongoose.Schema({
     type: String,
     required: true
   },
-  mib: [
-    {
-      oid: String,
-      name: String,
-      value: String,
-      type: String,
-      description: String
-    }
-  ],
+  mib: {
+    type: String
+  },
   Geolocation: [
     {
       country: String,
