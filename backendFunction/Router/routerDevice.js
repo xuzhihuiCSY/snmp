@@ -5,11 +5,11 @@ const snmp = require('net-snmp')
 const deviceTemplateCopy = require('../models/DeviceModel.js');
 
 //search the device according to the IP address
-router.get('/search', async (req, res) => {
+router.get('/search/ip', async (req, res) => {
   let ipAddress = req.body.ipAddress
   try {
     let deviceData = await deviceTemplateCopy.findOne({ ipAddress: ipAddress }).exec()
-    if (deviceData.length === 0) {
+    if (deviceData === null) {
       return res.status(404).json({
         message: 'No records found'
       });
@@ -21,6 +21,27 @@ router.get('/search', async (req, res) => {
     })
   }
   res.send(deviceData)
+});
+
+//add the new device (connect the device does not exist in DB)
+router.post('/add', (res, req) => {
+  const deviceInfo = new deviceTemplateCopy({
+    ipAddress: req.body.ipAddress,
+    snmpVersion: req.body.snmpVersion,
+    oid: req.body.oid,
+    Geolocation: req.body.Geolocation,
+    hostname: req.body.hostname,
+    interfaceAmount: req.body.interfaceAmount
+  })
+  deviceInfo.save()
+  .then(data => {
+    res.status(200).json(data)
+    console.log('successfully add device')
+  })
+  .catch(error => {
+    res.json(error)
+    console.log(error)
+  })
 });
 
 //connect the device (re-connection)
@@ -106,25 +127,5 @@ router.get('/search/oid', async (res, req) => {
   }
 })
 
-//add the new device (connect the device does not exist in DB)
-router.post('/add', (res, req) => {
-  const deviceInfo = new deviceTemplateCopy({
-    ipAddress: req.body.ipAddress,
-    snmpVersion: req.body.snmpVersion,
-    oid: req.body.oid,
-    Geolocation: req.body.Geolocation,
-    hostname: req.body.hostname,
-    interfaceAmount: req.body.interfaceAmount
-  })
-  deviceInfo.save()
-  .then(data => {
-    res.status(200).json(data)
-    console.log('successfully add device')
-  })
-  .catch(error => {
-    res.json(error)
-    console.log(error)
-  })
-});
 
 module.exports = router
