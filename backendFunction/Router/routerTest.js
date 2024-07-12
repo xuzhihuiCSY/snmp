@@ -8,14 +8,6 @@ router.get('/name', async (req, res) => {
     let name = req.body.name
     let result = await testTemplateCopy.findOne({name: name}).exec()
     res.send(result)
-    .then(data=>{
-        res.status(200).json(data)
-        console.log('successfully searched')
-    })
-    .catch(err=>{
-        res.json(err)
-        console.log(err)
-    })
 });
 
 //search the info by gender
@@ -23,14 +15,6 @@ router.get('/gender', async (req, res) => {
     let gender = req.body.gender;
     let result = await testTemplateCopy.find({gender: gender}).exec();
     res.send(result)
-    .then(data=>{
-        res.status(200).json(data)
-        console.log('successfully searched')
-    })
-    .catch(err=>{
-        res.json(err)
-        console.log(err)
-    })
 });
 
 //add new info
