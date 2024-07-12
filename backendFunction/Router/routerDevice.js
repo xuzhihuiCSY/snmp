@@ -4,9 +4,67 @@ const snmp = require('net-snmp')
 
 const deviceTemplateCopy = require('../models/DeviceModel.js');
 
+//query device information
+function checkDevice(targetIP) {
+  const session = snmp.createSession(targetIP, 'public');
+
+  const oids = [
+    '1.3.6.1.2.1.1.3.0', // sysUpTime
+    '1.3.6.1.2.1.2.2.1.8' // ifOperStatus for all interfaces
+  ];
+
+  let results = {
+    sysUpTime: null,
+    interfaces: []
+  }
+
+  //query system uptime
+  session.get([oids[0]], (error, varbinds) => {
+    if (error) {
+      console.error('SNMP GET request failed:', error.toString());
+    } else {
+      // varbinds.forEach(varbind => {
+      //   if (snmp.isVarbindError(varbind)) {
+      //     console.error('Varbind Error:', snmp.varbindError(varbind));
+      //   } else {
+      //     console.log('System Uptime OID:', varbind.oid, 'Value:', varbind.value.toString());
+      //   }
+      // });
+      results.sysUpTime = varbinds[0].value.toString();
+    }
+  });
+
+  //query interface operational status
+  session.walk(oids[1], 20, (error, varbinds) => {
+    if (error) {
+      console.error('SNMP Walk request failed:', error.toString());
+    } else {
+      varbinds.forEach(varbind => {
+        if (snmp.isVarbindError(varbind)) {
+          console.error('Varbind Error:', snmp.varbindError(varbind));
+        } else {
+          console.log('Interface Operational Status OID:', varbind.oid, 'Value:', varbind.value.toString());
+          results.interfaces.push({
+            oid: varbind.oid,
+            status: varbind.value.toString()
+          });
+        }
+      });
+    }
+    session.close();
+  });
+}
+
+
 //search the device according to the IP address
+//get connection information by the IP address proivde from the frontend
 router.get('/search/ip', async (req, res) => {
   let ipAddress = req.body.ipAddress
+  if (!targetDevice) {
+    return res.status(400).json({ error: 'Enter a valid IP address' });
+  }
+  //create an SNMP session
+  const session = snmp.createSession(ipAddress, 'public');
   try {
     let deviceData = await deviceTemplateCopy.findOne({ ipAddress: ipAddress }).exec()
     if (deviceData === null) {
@@ -21,7 +79,59 @@ router.get('/search/ip', async (req, res) => {
     })
   }
   res.send(deviceData)
+
+  checkDevice(ipAddress, (error, results) => {
+    if (error) {
+      return res.status(500).json({ error: error.toString() });
+    }
+    res.json(results);
+  });
 });
+
+//function to check the manufacturer based on OID prefix
+function getManufacturer(oid) {
+  const oidPrefix = oid.split('.').slice(0, 4).join('.');
+  const manufacturers = {
+    '1.3.6.1.4.1.9': 'Cisco',
+    '1.3.6.1.4.1.11': 'HP',
+    '1.3.6.1.4.1.2636': 'Juniper',
+    '1.3.6.1.4.1.2021': 'UCD-SNMP',
+    '1.3.6.1.2.1.1': 'MIB-II'
+  };
+  return manufacturers[oidPrefix] || 'Unknown';
+}
+
+//function to perform an SNMP walk and parse the data based on the manufacturer
+function performSNMPWalk(target, oid) {
+  const manufacturer = getManufacturer(oid);
+  console.log(`Manufacturer: ${manufacturer}`);
+
+  const session = snmp.createSession(target, 'public');
+
+  //perform the SNMP walk
+  session.walk(oid, 20, (error, varbinds) => {
+    if (error) {
+      console.error('SNMP walk failed:', error.toString());
+    } else {
+      varbinds.forEach(varbind => {
+        if (snmp.isVarbindError(varbind)) {
+          console.error('Varbind Error:', snmp.varbindError(varbind));
+        } else {
+          console.log('OID:', varbind.oid, 'Value:', varbind.value.toString());
+        }
+      });
+    }
+    session.close();
+  });
+}
+
+//get decvice information by IP and OID provided from the frontend
+router.get('/searchdevice', async (req, res) => {
+  let ipAddress = req.body.ipAddress;
+  let oid = req.body.oid;
+  let result = performSNMPWalk(ipAddress, oid);
+})
+
 
 //add the new device (connect the device does not exist in DB)
 router.post('/add', (res, req) => {
@@ -34,14 +144,14 @@ router.post('/add', (res, req) => {
     interfaceAmount: req.body.interfaceAmount
   })
   deviceInfo.save()
-  .then(data => {
-    res.status(200).json(data)
-    console.log('successfully add device')
-  })
-  .catch(error => {
-    res.json(error)
-    console.log(error)
-  })
+    .then(data => {
+      res.status(200).json(data)
+      console.log('successfully add device')
+    })
+    .catch(error => {
+      res.json(error)
+      console.log(error)
+    })
 });
 
 //connect the device (re-connection)
