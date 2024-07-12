@@ -5,7 +5,7 @@ const snmp = require('net-snmp')
 const deviceTemplateCopy = require('../models/DeviceModel.js');
 
 //search the device according to the IP address
-router.get('/search', async (res, req) => {
+router.get('/search', async (req, res) => {
   let ipAddress = req.body.ipAddress
   try {
     let deviceData = await deviceTemplateCopy.findOne({ ipAddress: ipAddress }).exec()
