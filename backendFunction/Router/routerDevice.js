@@ -143,9 +143,9 @@ router.post('/add', (res, req) => {
   const deviceInfo = new deviceTemplateCopy({
     ipAddress: req.body.ipAddress,
     snmpVersion: req.body.snmpVersion,
-    oid: req.body.oid,
-    Geolocation: req.body.Geolocation,
-    hostname: req.body.hostname,
+    mib: req.body.mib,
+    Geolocation: [],
+    Hostname: req.body.Hostname,
     interfaceAmount: req.body.interfaceAmount
   })
   deviceInfo.save()
