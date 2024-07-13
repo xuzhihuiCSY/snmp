@@ -7,7 +7,19 @@ const testTemplate = mongoose.Schema({
     },
     gender: {
         type: String
-    }
+    },
+    location: [
+        {
+            city: {
+                type: String,
+                require: true
+            },
+            zip: {
+                type: Number,
+                require: true
+            }
+        }
+    ]
 });
 
 module.exports = mongoose.model('test_info', testTemplate)

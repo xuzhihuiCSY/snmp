@@ -16,9 +16,15 @@ const deviceTemplate = new mongoose.Schema({
   },
   Geolocation: [
     {
-      country: String,
-      city: String,
-      zip: Number
+      country: {
+        type: String
+      },
+      city: {
+        type: String
+      },
+      zip: {
+        type: Number
+      }
     }
   ],
   Hostname: {
