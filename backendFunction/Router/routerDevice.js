@@ -144,7 +144,7 @@ router.post('/add', (res, req) => {
     ipAddress: req.body.ipAddress,
     snmpVersion: req.body.snmpVersion,
     mib: req.body.mib,
-    Geolocation: [],
+    Geolocation: {},
     Hostname: req.body.Hostname,
     interfaceAmount: req.body.interfaceAmount
   })

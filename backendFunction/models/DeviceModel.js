@@ -14,19 +14,13 @@ const deviceTemplate = new mongoose.Schema({
   mib: {
     type: String
   },
-  Geolocation: [
-    {
-      country: {
-        type: String
-      },
-      city: {
-        type: String
-      },
-      zip: {
-        type: Number
-      }
+  Geolocation: {
+    type: {
+      country: String,
+      city: String,
+      zip: String
     }
-  ],
+  },
   Hostname: {
     type: String,
     required: true

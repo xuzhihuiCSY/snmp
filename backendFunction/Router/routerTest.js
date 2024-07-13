@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const testTemplateCopy = require('../models/TestModel.js')
-const { route } = require('./routerDevice')
 
 //search the info by name
 router.get('/name', async (req, res) => {
@@ -19,6 +18,8 @@ router.get('/gender', async (req, res) => {
 
 //add new info
 router.post('/add', async (req, res) => {
+    // let city = req.body.city
+    // let zip = req.body.zip
     const testInfo = new testTemplateCopy({
         name: req.body.name,
         gender: req.body.gender,
@@ -27,7 +28,7 @@ router.post('/add', async (req, res) => {
             zip: req.body.zip
         }
     })
-    testInfo.save()
+    await testInfo.save()
     .then(data=>{
         res.status(200).json(data)
         console.log('successfully added')

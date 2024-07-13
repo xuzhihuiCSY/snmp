@@ -9,8 +9,10 @@ const testTemplate = mongoose.Schema({
         type: String
     },
     location: {
-        type: Object,
-        require: true
+        type: {
+            city: String,
+            zip: String
+        }
     }
 });
 
