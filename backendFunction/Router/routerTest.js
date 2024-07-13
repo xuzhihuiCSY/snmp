@@ -21,7 +21,11 @@ router.get('/gender', async (req, res) => {
 router.post('/add', async (req, res) => {
     const testInfo = new testTemplateCopy({
         name: req.body.name,
-        gender: req.body.gender
+        gender: req.body.gender,
+        location: {
+            city: req.body.city,
+            zip: req.body.zip
+        }
     })
     testInfo.save()
     .then(data=>{
