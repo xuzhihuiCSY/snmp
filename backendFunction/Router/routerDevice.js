@@ -60,12 +60,14 @@ function checkDevice(targetIP) {
 //get connection information by the IP address proivde from the frontend
 router.get('/search/ip', async (req, res) => {
   let ipAddress = req.body.ipAddress
+  console.log(ipAddress)
 
   if (!ipAddress) {
     return res.status(400).json({ error: 'Enter a valid IP address' });
   } else {
     //create an SNMP session
     const session = snmp.createSession(ipAddress, 'public');
+    let deviceInfo = await deviceTemplateCopy.findOne({ipAddress: ipAddress}).exec()
 
     checkDevice(ipAddress, (error, results) => {
       if (error) {
@@ -73,6 +75,7 @@ router.get('/search/ip', async (req, res) => {
       }
       res.json(results);
     });
+    res.send(deviceInfo);
   }
 
   try {
@@ -141,7 +144,7 @@ router.get('/search/device', async (req, res) => {
 //add the new device (connect the device does not exist in DB)
 router.post('/add', (req, res) => {
   const deviceInfo = new deviceTemplateCopy({
-    ip: req.body.ip,
+    ipAddress: req.body.ipAddress,
     snmpVersion: req.body.snmpVersion,
     mib: req.body.mib,
     Geolocation: {},

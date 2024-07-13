@@ -3,7 +3,7 @@ const { type } = require('os');
 
 
 const deviceTemplate = new mongoose.Schema({
-  ip: {
+  ipAddress: {
     type: String,
     required: true
   },
