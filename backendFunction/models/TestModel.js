@@ -12,7 +12,8 @@ const testTemplate = mongoose.Schema({
         type: {
             city: String,
             zip: String
-        }
+        },
+        required: true
     }
 });
 

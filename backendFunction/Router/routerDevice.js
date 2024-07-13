@@ -139,9 +139,9 @@ router.get('/search/device', async (req, res) => {
 
 
 //add the new device (connect the device does not exist in DB)
-router.post('/add', (res, req) => {
+router.post('/add', (req, res) => {
   const deviceInfo = new deviceTemplateCopy({
-    ipAddress: req.body.ipAddress,
+    ip: req.body.ip,
     snmpVersion: req.body.snmpVersion,
     mib: req.body.mib,
     Geolocation: {},
@@ -156,7 +156,6 @@ router.post('/add', (res, req) => {
   .catch(error => {
     res.json(error)
     console.log(error)
-    console.log('device add failed')
   })
 });
 

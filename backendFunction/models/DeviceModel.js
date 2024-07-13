@@ -3,9 +3,9 @@ const { type } = require('os');
 
 
 const deviceTemplate = new mongoose.Schema({
-  ipAddress: {
+  ip: {
     type: String,
-    required: true,
+    required: true
   },
   snmpVersion: {
     type: String,
@@ -19,7 +19,8 @@ const deviceTemplate = new mongoose.Schema({
       country: String,
       city: String,
       zip: String
-    }
+    },
+    required: true
   },
   Hostname: {
     type: String,
