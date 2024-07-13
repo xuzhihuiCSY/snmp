@@ -149,14 +149,15 @@ router.post('/add', (res, req) => {
     interfaceAmount: req.body.interfaceAmount
   })
   deviceInfo.save()
-    .then(data => {
-      res.status(200).json(data)
-      console.log('successfully add device')
-    })
-    .catch(error => {
-      res.json(error)
-      console.log(error)
-    })
+  .then(data => {
+    res.status(200).json(data)
+    console.log('successfully add device')
+  })
+  .catch(error => {
+    res.json(error)
+    console.log(error)
+    console.log('device add failed')
+  })
 });
 
 //connect the device (re-connection)
