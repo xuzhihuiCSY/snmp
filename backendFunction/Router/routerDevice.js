@@ -62,24 +62,18 @@ router.get('/search/ip', async (req, res) => {
   let ipAddress = req.body.ipAddress
   console.log(ipAddress)
 
-  if (!ipAddress) {
-    return res.status(400).json({ error: 'Enter a valid IP address' });
-  } else {
-    //create an SNMP session
-    const session = snmp.createSession(ipAddress, 'public');
-    let deviceInfo = await deviceTemplateCopy.findOne({ipAddress: ipAddress}).exec()
+  //create an SNMP session
+  const session = snmp.createSession(ipAddress, 'public');
 
-    checkDevice(ipAddress, (error, results) => {
-      if (error) {
-        return res.status(500).json({ error: error.toString() });
-      }
-      res.json(results);
-    });
-    res.send(deviceInfo);
-  }
+  checkDevice(ipAddress, (error, results) => {
+    if (error) {
+      return res.status(500).json({ error: error.toString() });
+    }
+    res.json(results);
+  });
 
   try {
-    let deviceData = await deviceTemplateCopy.findOne({ ipAddress: ipAddress }).exec()
+    let deviceData = await deviceTemplateCopy.findOne({ category: ipAddress }).exec()
     if (deviceData === null) {
       return res.status(404).json({
         message: 'No records found'
@@ -92,7 +86,7 @@ router.get('/search/ip', async (req, res) => {
       error: 'An error occurred while searching', details: error.toString()
     })
   }
-  res.send(deviceData);
+  // res.send(deviceData);
 });
 
 //function to check the manufacturer based on OID prefix
@@ -152,14 +146,14 @@ router.post('/add', (req, res) => {
     interfaceAmount: req.body.interfaceAmount
   })
   deviceInfo.save()
-  .then(data => {
-    res.status(200).json(data)
-    console.log('successfully add device')
-  })
-  .catch(error => {
-    res.json(error)
-    console.log(error)
-  })
+    .then(data => {
+      res.status(200).json(data)
+      console.log('successfully add device')
+    })
+    .catch(error => {
+      res.json(error)
+      console.log(error)
+    })
 });
 
 //connect the device (re-connection)

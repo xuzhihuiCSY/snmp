@@ -5,14 +5,15 @@ const testTemplateCopy = require('../models/TestModel.js')
 //search the info by name
 router.get('/name', async (req, res) => {
     let name = req.body.name
-    let result = await testTemplateCopy.findOne({name: name}).exec()
+    console.log(name)
+    let result = await testTemplateCopy.findOne({category: name}).exec()
     res.send(result)
 });
 
 //search the info by gender
 router.get('/gender', async (req, res) => {
     let gender = req.body.gender;
-    let result = await testTemplateCopy.find({gender: gender}).exec();
+    let result = await testTemplateCopy.find({category: gender}).exec();
     res.send(result)
 });
 
