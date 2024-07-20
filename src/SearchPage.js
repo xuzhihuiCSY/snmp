@@ -53,7 +53,7 @@ export default function SearchPage() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({payload: ip })
+                body: JSON.stringify({ip })
             })
                 .then(res => {
                     if (res.status === 200) {
@@ -136,7 +136,7 @@ export default function SearchPage() {
                     Search
                 </Button>
                 <div>
-                    { device.map((item, index) => {
+                    {device.map((item, index) => {
                         return (
                             <div key={index}>
                                 <div>{item.ipAddress}</div>
@@ -147,7 +147,7 @@ export default function SearchPage() {
                                 <div>{item.interfaceAmount}</div>
                             </div>
                         )
-                    }) }
+                    })}
                 </div>
             </Box>
         </>
