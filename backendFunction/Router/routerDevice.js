@@ -58,7 +58,7 @@ function checkDevice(targetIP) {
 
 //search the device according to the IP address
 //get connection information by the IP address proivde from the frontend
-router.get('/search/ip', async (req, res) => {
+router.post('/search/ip', async (req, res) => {
   let ipAddress = req.body.ipAddress
   console.log(ipAddress)
 
