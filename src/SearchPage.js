@@ -17,48 +17,60 @@ import { data } from "autoprefixer";
 export default function SearchPage() {
     const [ip, setIp] = useState("");
     const [mib, setMib] = useState("");
+    const [version, setVersion] = useState("");
     const [ipEmpty, setIPEmpty] = useState(true);
     const [mibEmpty, setMibEmpty] = useState(true);
-    const [version, setVersion] = useState("");
+    const [versionEmpty, setVersionEmpty] = useState(true);
     const [device, setDevice] = useState([]);
 
     const IPInput = (value) => {
-        if(value !== ""){
+        if (value !== "") {
             setIp(value);
             setIPEmpty(false);
         }
     };
 
     const MibInput = (value) => {
-        if(value !== ""){
+        if (value !== "") {
             setMib(value);
             setMibEmpty(false);
         }
     };
 
-    const handleVersion = (event) => {
-        setVersion(event.target.value);
+    const VersionInput = (value) => {
+        if (value !== "") {
+            setVersion(value);
+            setVersionEmpty(false);
+        }
     };
 
-    const handleSubmit = () => { };
 
-    const getDevice = () => {
-        fetch("http://localhost:5000/snmp/search/ip", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ ip })
-        })
-            .then(res => res.json())
-            .then(data => {
-                console.log(data)
+    const handleIPSearch = (event) => {
+        event.preventDefault();
+        if (ipEmpty === false) {
+            fetch("http://localhost:5000/snmp/search/ip", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ip })
             })
+                .then(res => {
+                    if (res.status === 200) {
+                        return res.json()
+                    } else {
+                        alert("Please check your IP Address");
+                        return res.json()
+                    }
+                })
+                .then(
+                    result => {
+                        console.log(result);
+                        setDevice(result);
+                    })
+                    .catch(error => console.error('Error:', error));
+        }
     };
-
-    useEffect(() => {
-        getDevice();
-    }, [])
 
     return (
         <>
@@ -74,7 +86,7 @@ export default function SearchPage() {
                     flexDirection: 'column',
                     alignItems: 'center',
                 }}
-                onSubmit={handleSubmit}>
+                onSubmit={handleIPSearch}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                         <TextField
@@ -109,12 +121,13 @@ export default function SearchPage() {
                                 name="version"
                                 required
                                 sx={{ maxWidth: 200 }}
-                                onChange={handleVersion}
+                                onChange={(e) => VersionInput(e.target.value)}
                             >
                                 <Option value="V2c">V2c</Option>
                                 <Option value="V3">V3</Option>
                             </Select>
                         </Stack>
+                        {versionEmpty ? <div style={{ color: 'red' }}>Select one version!</div> : ''}
                     </Grid>
                 </Grid>
                 {/* <TextField id="outlined-search" label="IP Address" type="search" />
@@ -123,9 +136,39 @@ export default function SearchPage() {
                     Search
                 </Button>
                 <div>
-                    { }
+                    { device.map((item, index) => {
+                        return (
+                            <div key={index}>
+                                <div>{item.ipAddress}</div>
+                                <div>{item.snmpVersion}</div>
+                                <div>{item.mib}</div>
+                                <div>{item.Geolocation}</div>
+                                <div>{item.Hostname}</div>
+                                <div>{item.interfaceAmount}</div>
+                            </div>
+                        )
+                    }) }
                 </div>
             </Box>
         </>
     );
 }
+
+
+// const getDevice = () => {
+//     fetch("http://localhost:5000/snmp/search/ip", {
+//         method: "POST",
+//         headers: {
+//             'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({ ip })
+//     })
+//         .then(res => res.json())
+//         .then(data => {
+//             console.log(data)
+//         })
+// };
+
+// useEffect(() => {
+//     getDevice();
+// }, [device]);

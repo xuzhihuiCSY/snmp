@@ -60,7 +60,6 @@ function checkDevice(targetIP) {
 //get connection information by the IP address proivde from the frontend
 router.post('/search/ip', async (req, res) => {
   let ipAddress = req.body.ipAddress
-  console.log(ipAddress)
 
   //create an SNMP session
   const session = snmp.createSession(ipAddress, 'public');
@@ -79,7 +78,7 @@ router.post('/search/ip', async (req, res) => {
         message: 'No records found'
       });
     } else {
-      res.status(200).json({ deviceData });
+      res.status(200).send(deviceData);
     }
   } catch (error) {
     res.status(500).json({
