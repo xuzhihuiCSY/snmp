@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose')
 const app = express();
-// const bodyParser = require('body-parser');
+const cors = require('cors');
 const snmp = require('net-snmp');
 const routerDevice = require('./Router/routerDevice');
 const routerTest = require('./Router/routerTest');
@@ -27,7 +27,9 @@ async function connect(){
 connect();
 
 //express middleware
-// app.use(bodyParser.json());
+app.use(cors({
+  origin: '*',
+}))
 app.use(express.json());
 app.use('/snmp', routerDevice);
 app.use('/test', routerTest);

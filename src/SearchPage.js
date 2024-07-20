@@ -53,7 +53,7 @@ export default function SearchPage() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ ip })
+                body: JSON.stringify({payload: ip })
             })
                 .then(res => {
                     if (res.status === 200) {
@@ -96,7 +96,7 @@ export default function SearchPage() {
                             id="ipAddress"
                             name="ipAddress"
                             label="IP Address"
-                            type="search"
+                            autoFocus
                             onChange={(e) => IPInput(e.target.value)}
                         />
                         {ipEmpty ? <div style={{ color: 'red' }}>IP Address required!</div> : ''}
@@ -109,7 +109,7 @@ export default function SearchPage() {
                             id="mib"
                             name="mib"
                             label="MIB"
-                            type="search"
+                            autoFocus
                             onChange={(e) => MibInput(e.target.value)}
                         />
                         {mibEmpty ? <div style={{ color: 'red' }}>MIB required!</div> : ''}
