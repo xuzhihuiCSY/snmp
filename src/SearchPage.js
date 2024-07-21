@@ -76,28 +76,42 @@ export default function SearchPage() {
                     version
                 })
             })
-            .then(res => res.json())
+                .then(res => res.json())
 
             //search OID
             fetch("http://localhost:5000/snmp/search/device")
-            .then(res => res.json())
-            .then(data=>{
-                console.log(data)
-                setOid(data)
-            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data)
+                    setOid(data)
+                })
         }
     }
 
     const handleReconnect = (event) => {
         event.preventDefault();
-        if(device.length !== 0){
+        if (device.length !== 0) {
             fetch("http://localhost:5000/snmp/search/device")
-            .then(res => res.json())
-            .then(data=>{
-                console.log(data)
-                setOid(data)
-            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data)
+                    setOid(data)
+                })
         }
+    }
+
+    function demon(device){
+        return (
+            <>
+                {device.map((item, key)=>{
+                    return(
+                        <div key={key}>
+                            <p>{}</p>
+                        </div>
+                    )
+                })}
+            </>
+        );
     }
 
     return (
@@ -128,22 +142,29 @@ export default function SearchPage() {
                     <h5>Do you want to connect?</h5>
                     <button onClick={handleConnect}>connect</button>
                 </div> : ''}
-                <div>
-                    {device.map((item, key) => {
-                        {console.log(device)}
-                        return (
-                            <div key={key}>
-                                <div>{item._id}</div>
-                                <div>{item.ipAddress}</div>
-                                <div>{item.snmpVersion}</div>
-                                <div>{item.mib}</div>
-                                <div>{item.Geolocation}</div>
-                                <div>{item.Hostname}</div>
-                                <div>{item.interfaceAmount}</div>
-                            </div>
-                        )
-                    })}
-                </div>
+                {device.map((item, key) => {
+                    { console.log(device)
+                        console.log(device[0]._id)
+                     }
+                    return (
+                        <div key={key}>
+                            <div>{item._id}</div>
+                            <div>{item.ipAddress}</div>
+                            <div>{item.snmpVersion}</div>
+                            <div>{item.mib}</div>
+                            <div>{item.Geolocation._id}</div>
+                            <div>{item.Hostname}</div>
+                            <div>{item.interfaceAmount}</div>
+                            {/* <h2>{device[0]._id}</h2>
+                            <h2>{device[0].ipAddress}</h2>
+                            <h2>{device[0].snmpVersion}</h2>
+                            <h2>{device[0].mib}</h2>
+                            <h2>{device[0].Geolocation._id}</h2> */}
+                            {/* <h2>{device[0].Hostname}</h2> */}
+                            {/* <h2>{device[0].interfaceAmount}</h2> */}
+                        </div>
+                    )
+                })}
             </div>
         </>
     )
