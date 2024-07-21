@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 
 export default function SearchPage() {
     const [ip, setIp] = useState("");
     const [mib, setMib] = useState("");
     const [version, setVersion] = useState("");
+    const [oid, setOid] = useState({});
     const [ipEmpty, setIPEmpty] = useState(true);
     const [mibEmpty, setMibEmpty] = useState(true);
     const [versionEmpty, setVersionEmpty] = useState(true);
@@ -44,22 +45,60 @@ export default function SearchPage() {
                     ip
                 })
             })
-            .then(res => {
-                if(res.status === 200){
-                    return res.json()
-                  }else{
-                    alert("Please check your IP Address");
-                    return res.json()
-                  }
-            })
-            .then(
-                data => {
-                    console.log(data);
-                    setDevice([...device, data])
+                .then(res => {
+                    if (res.status === 200) {
+                        return res.json()
+                    } else {
+                        alert("Please check your IP Address");
+                        return res.json()
+                    }
+                })
+                .then(
+                    data => {
+                        console.log(data);
+                        setDevice([...device, data])
                     })
                 .catch(error => console.error('Error:', error));
         }
     };
+
+    const handleConnect = (event) => {
+        event.preventDefault();
+        if (ipEmpty === false && mibEmpty === false) {
+            fetch("http://localhost:5000/snmp/add", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ip,
+                    mib,
+                    version
+                })
+            })
+            .then(res => res.json())
+
+            //search OID
+            fetch("http://localhost:5000/snmp/search/device")
+            .then(res => res.json())
+            .then(data=>{
+                console.log(data)
+                setOid(data)
+            })
+        }
+    }
+
+    const handleReconnect = (event) => {
+        event.preventDefault();
+        if(device.length !== 0){
+            fetch("http://localhost:5000/snmp/search/device")
+            .then(res => res.json())
+            .then(data=>{
+                console.log(data)
+                setOid(data)
+            })
+        }
+    }
 
     return (
         <>
@@ -75,7 +114,8 @@ export default function SearchPage() {
                         {mibEmpty ? <div style={{ color: 'red' }}>MIB required!</div> : ''}
                     </div>
                     <div>
-                        <select>
+                        <select defaultValue="Select a version">
+                            <option value="none">Select a version</option>
                             <option>V2c</option>
                             <option>V3</option>
                         </select>
@@ -83,17 +123,23 @@ export default function SearchPage() {
                     </div>
                 </div>
                 <button onClick={handleIPSearch}>Search</button>
+                <button onClick={handleReconnect}>Re-Connect</button>
+                {device.length !== 0 ? <div>
+                    <h5>Do you want to connect?</h5>
+                    <button onClick={handleConnect}>connect</button>
+                </div> : ''}
                 <div>
-                    {console.log(device)}
-                    {device.map((item) => {
+                    {device.map((item, key) => {
+                        {console.log(device)}
                         return (
-                            <div>
-                                <div key={item._id}>{item.ipAddress}</div>
-                                <div key={item._id}>{item.snmpVersion}</div>
-                                <div key={item._id}>{item.mib}</div>
-                                <div key={item._id}>{item.Geolocation}</div>
-                                <div key={item._id}>{item.Hostname}</div>
-                                <div key={item._id}>{item.interfaceAmount}</div>
+                            <div key={key}>
+                                <div>{item._id}</div>
+                                <div>{item.ipAddress}</div>
+                                <div>{item.snmpVersion}</div>
+                                <div>{item.mib}</div>
+                                <div>{item.Geolocation}</div>
+                                <div>{item.Hostname}</div>
+                                <div>{item.interfaceAmount}</div>
                             </div>
                         )
                     })}
@@ -102,22 +148,3 @@ export default function SearchPage() {
         </>
     )
 }
-
-
-// const getDevice = () => {
-//     fetch("http://localhost:5000/snmp/search/ip", {
-//         method: "POST",
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify({ ip })
-//     })
-//         .then(res => res.json())
-//         .then(data => {
-//             console.log(data)
-//         })
-// };
-
-// useEffect(() => {
-//     getDevice();
-// }, [device]);
