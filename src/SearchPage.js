@@ -1,17 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Toolbar from '@mui/material/Toolbar';
-import TextField from '@mui/material/TextField';
-import Select from '@mui/joy/Select';
-import Option from '@mui/joy/Option';
-import Stack from '@mui/joy/Stack';
-import { data } from "autoprefixer";
-
 
 
 export default function SearchPage() {
@@ -53,105 +40,67 @@ export default function SearchPage() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ip })
-            })
-                .then(res => {
-                    if (res.status === 200) {
-                        return res.json()
-                    } else {
-                        alert("Please check your IP Address");
-                        return res.json()
-                    }
+                body: JSON.stringify({
+                    ip
                 })
-                .then(
-                    result => {
-                        console.log(result);
-                        setDevice(result);
+            })
+            .then(res => {
+                if(res.status === 200){
+                    return res.json()
+                  }else{
+                    alert("Please check your IP Address");
+                    return res.json()
+                  }
+            })
+            .then(
+                data => {
+                    console.log(data);
+                    setDevice([...device, data])
                     })
-                    .catch(error => console.error('Error:', error));
+                .catch(error => console.error('Error:', error));
         }
     };
 
     return (
         <>
-            <Toolbar>
-                <Typography component="h3" variant="h3">
-                    SNMP Network Device Management System
-                </Typography>
-            </Toolbar>
-            <Box component="form"
-                sx={{
-                    marginTop: 8,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                }}
-                onSubmit={handleIPSearch}>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="ipAddress"
-                            name="ipAddress"
-                            label="IP Address"
-                            autoFocus
-                            onChange={(e) => IPInput(e.target.value)}
-                        />
-                        {ipEmpty ? <div style={{ color: 'red' }}>IP Address required!</div> : ''}
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="mib"
-                            name="mib"
-                            label="MIB"
-                            autoFocus
-                            onChange={(e) => MibInput(e.target.value)}
-                        />
-                        {mibEmpty ? <div style={{ color: 'red' }}>MIB required!</div> : ''}
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <Stack spacing={2}>
-                            <Select
-                                placeholder="Select a version"
-                                name="version"
-                                required
-                                sx={{ maxWidth: 200 }}
-                                onChange={(e) => VersionInput(e.target.value)}
-                            >
-                                <Option value="V2c">V2c</Option>
-                                <Option value="V3">V3</Option>
-                            </Select>
-                        </Stack>
-                        {versionEmpty ? <div style={{ color: 'red' }}>Select one version!</div> : ''}
-                    </Grid>
-                </Grid>
-                {/* <TextField id="outlined-search" label="IP Address" type="search" />
-                <TextField id="outlined-search" label="MIB" type="search" /> */}
-                <Button type="submit" fullWidth variant="contained" sx={{ mt: 1, mb: 1 }}>
-                    Search
-                </Button>
+            <h1>SNMP Network Device Management System</h1>
+            <div>
                 <div>
-                    {device.map((item, index) => {
+                    <div>
+                        <input type="text" onChange={(e) => IPInput(e.target.value)} />
+                        {ipEmpty ? <div style={{ color: 'red' }}>IP Address required!</div> : ''}
+                    </div>
+                    <div>
+                        <input type="text" onChange={(e) => MibInput(e.target.value)} />
+                        {mibEmpty ? <div style={{ color: 'red' }}>MIB required!</div> : ''}
+                    </div>
+                    <div>
+                        <select>
+                            <option>V2c</option>
+                            <option>V3</option>
+                        </select>
+                        {versionEmpty ? <div style={{ color: 'red' }}>Select one version!</div> : ''}
+                    </div>
+                </div>
+                <button onClick={handleIPSearch}>Search</button>
+                <div>
+                    {console.log(device)}
+                    {device.map((item) => {
                         return (
-                            <div key={index}>
-                                <div>{item.ipAddress}</div>
-                                <div>{item.snmpVersion}</div>
-                                <div>{item.mib}</div>
-                                <div>{item.Geolocation}</div>
-                                <div>{item.Hostname}</div>
-                                <div>{item.interfaceAmount}</div>
+                            <div>
+                                <div key={item._id}>{item.ipAddress}</div>
+                                <div key={item._id}>{item.snmpVersion}</div>
+                                <div key={item._id}>{item.mib}</div>
+                                <div key={item._id}>{item.Geolocation}</div>
+                                <div key={item._id}>{item.Hostname}</div>
+                                <div key={item._id}>{item.interfaceAmount}</div>
                             </div>
                         )
                     })}
                 </div>
-            </Box>
+            </div>
         </>
-    );
+    )
 }
 
 
