@@ -10,14 +10,7 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch('/api/snmp/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ ip_address: ipAddress }),
-    });
-    const data = await response.json();
+    const data = await fetchDeviceData(ipAddress);
     setDeviceInfo(processData(data));
     setUptime(data.uptime);
     setInterfaces(data.interfaces.map(processInterface));
@@ -25,12 +18,28 @@ function App() {
   };
 
   useEffect(() => {
-    const processInterval = setInterval(() => {
-      if (ipAddress) fetchProcesses();
-    }, 2000);
-
+    let processInterval;
+    if (ipAddress) {
+      processInterval = setInterval(async () => {
+        const data = await fetchDeviceData(ipAddress);
+        setUptime(data.uptime);
+        setInterfaces(data.interfaces.map(processInterface));
+        fetchProcesses();
+      }, 2000);
+    }
     return () => clearInterval(processInterval);
   }, [ipAddress]);
+
+  const fetchDeviceData = async (ip) => {
+    const response = await fetch('/api/snmp/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ip_address: ip }),
+    });
+    return await response.json();
+  };
 
   const fetchProcesses = async () => {
     const response = await fetch('/api/processes/', {
@@ -131,17 +140,17 @@ function App() {
               ))}
             </ul>
           </div>
-          <h2>IPv4 Addresses</h2>
-          <ul>
-            {deviceInfo.IPv4_addresses.map((addr, index) => (
-              <li key={index}>{addr}</li>
-            ))}
-          </ul>
+          
           <h2>Operational Processes</h2>
           <div className="processes-info">
             <ul>
               {processes.map((process, index) => (
-                <li key={index} className="process-item">{process}</li>
+                <li key={index} className="process-item">
+                  <div><strong>Name:</strong> {process.name}</div>
+                  <div><strong>PID:</strong> {process.pid}</div>
+                  <div><strong>CPU Usage:</strong> {process.cpu_usage}</div>
+                  <div><strong>Memory Usage:</strong> {process.memory_usage}</div>
+                </li>
               ))}
             </ul>
           </div>
