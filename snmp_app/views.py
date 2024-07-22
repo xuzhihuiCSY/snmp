@@ -130,24 +130,36 @@ class InterfaceInfoAPIView(APIView):
             return Response({'interfaces': combined_interfaces}, status=status.HTTP_200_OK)
         return Response({'error': 'IP address not provided'}, status=status.HTTP_400_BAD_REQUEST)
 
-def snmp_processes(ip):
+def snmp_process_details(ip):
     process_info = []
-    oid = '1.3.6.1.2.1.25.4.2.1.2'
+    oid_name = '1.3.6.1.2.1.25.4.2.1.2'  # Process name
+    oid_pid = '1.3.6.1.2.1.25.4.2.1.1'   # Process ID
+    oid_cpu = '1.3.6.1.2.1.25.5.1.1.1'    # CPU usage
+    oid_memory = '1.3.6.1.2.1.25.5.1.1.2' # Memory usage
+
     iterator = nextCmd(
         SnmpEngine(),
         CommunityData('public'),
         UdpTransportTarget((ip, 161)),
         ContextData(),
-        ObjectType(ObjectIdentity(oid)),
+        ObjectType(ObjectIdentity(oid_name)),
+        ObjectType(ObjectIdentity(oid_pid)),
+        ObjectType(ObjectIdentity(oid_cpu)),
+        ObjectType(ObjectIdentity(oid_memory)),
         lexicographicMode=False
     )
 
     for errorIndication, errorStatus, errorIndex, varBinds in iterator:
         if errorIndication or errorStatus:
-            logger.debug(f"Error in retrieving processes: {errorIndication or errorStatus.prettyPrint()}")
+            logger.debug(f"Error in retrieving process details: {errorIndication or errorStatus.prettyPrint()}")
             break
-        process_detail = ' = '.join([x.prettyPrint() for x in varBinds])
-        process_info.append(process_detail)
+        process = {
+            'name': varBinds[0].prettyPrint().split('=')[1].strip(),
+            'pid': varBinds[1].prettyPrint().split('=')[1].strip(),
+            'cpu_usage': varBinds[2].prettyPrint().split('=')[1].strip(),
+            'memory_usage': varBinds[3].prettyPrint().split('=')[1].strip()
+        }
+        process_info.append(process)
 
     return process_info
 
@@ -155,6 +167,6 @@ class ProcessInfoAPIView(APIView):
     def post(self, request, format=None):
         ip_address = request.data.get('ip_address')
         if ip_address:
-            processes = snmp_processes(ip_address)
+            processes = snmp_process_details(ip_address)
             return Response({'processes': processes}, status=status.HTTP_200_OK)
         return Response({'error': 'IP address not provided'}, status=status.HTTP_400_BAD_REQUEST)
